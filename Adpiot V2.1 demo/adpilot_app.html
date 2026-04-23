@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdPilot - 千川电销智能拓客副驾驶</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #fe2c55;
+            --primary-light: #ff6b8a;
+            --secondary: #161823;
+            --accent: #25f4ee;
+            --bg-dark: #1a1a2e;
+            --bg-light: #f5f6f8;
+            --bg-card: #ffffff;
+            --text-primary: #161823;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border: #e8e8e8;
+            --success: #52c41a;
+            --warning: #faad14;
+            --error: #ff4d4f;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #16213e 100%);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .logo-text span {
+            color: var(--accent);
+        }
+        
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .header-stat {
+            text-align: center;
+        }
+        
+        .header-stat-value {
+            color: var(--accent);
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-stat-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 72px);
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sidebar-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .merchant-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f5 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .merchant-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .merchant-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .tag-industry {
+            background: rgba(37, 244, 238, 0.15);
+            color: #00b8b8;
+        }
+        
+        .tag-budget {
+            background: rgba(254, 44, 85, 0.1);
+            color: var(--primary);
+        }
+        
+        .tag-stage {
+            background: rgba(250, 173, 20, 0.15);
+            color: #d48806;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            font-size: 13px;
+        }
+        
+        .history-item {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .history-item:hover {
+            background: #fff0f0;
+        }
+        
+        .history-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        
+        .history-content {
+            font-size: 13px;
+            color: var(--text-primary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .history-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+        
+        .status-success {
+            background: rgba(82, 196, 26, 0.1);
+            color: var(--success);
+        }
+        
+        .status-pending {
+            background: rgba(250, 173, 20, 0.1);
+            color: var(--warning);
+        }
+        
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .workspace {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .panel {
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-left {
+            width: 400px;
+            flex-shrink: 0;
+        }
+        
+        .panel-right {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .panel-title-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .panel-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .slot-section {
+            margin-bottom: 24px;
+        }
+        
+        .slot-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .slot-label .required {
+            color: var(--primary);
+            margin-left: 4px;
+        }
+        
+        .slot-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .slot-option {
+            padding: 10px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .slot-option:hover {
+            border-color: var(--primary-light);
+            background: #fff8f8;
+        }
+        
+        .slot-option.selected {
+            border-color: var(--primary);
+            background: #fff0f3;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .slot-option .option-icon {
+            margin-right: 6px;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, #ff6b8a 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(254, 44, 85, 0.3);
+        }
+        
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .generate-btn.loading {
+            pointer-events: none;
+        }
+        
+        .generate-btn .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .draft-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .draft-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .draft-stats {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .draft-stat {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .draft-stat strong {
+            color: var(--primary);
+        }
+        
+        .draft-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        
+        .draft-editor:focus-within {
+            border-color: var(--primary);
+        }
+        
+        .draft-textarea {
+            flex: 1;
+            border: none;
+            padding: 16px;
+            font-size: 15px;
+            line-height: 1.8;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        .draft-textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .sensitive-words {
+            background: #fff7e6;
+            border-top: 1px solid #ffd591;
+            padding: 12px 16px;
+        }
+        
+        .sensitive-title {
+            font-size: 13px;
+            color: #d46b08;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .sensitive-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .sensitive-word {
+            background: white;
+            border: 1px solid #ffa940;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #d46b08;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sensitive-word:hover {
+            background: #fff1b8;
+        }
+        
+        .sensitive-word .replace {
+            color: var(--success);
+            margin-left: 6px;
+        }
+        
+        .draft-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            margin-top: 12px;
+        }
+        
+        .toolbar-left {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .toolbar-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .toolbar-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .send-btn {
+            padding: 10px 32px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .send-btn:hover {
+            background: #73d13d;
+            transform: translateY(-1px);
+        }
+        
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .diff-panel {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .diff-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .diff-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .diff-metrics {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .diff-metric {
+            font-size: 13px;
+        }
+        
+        .diff-metric .value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .diff-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .diff-box {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .diff-box-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .diff-added {
+            background: #f6ffed;
+            color: #389e0d;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        
+        .diff-removed {
+            background: #fff1f0;
+            color: #cf1322;
+            padding: 1px 4px;
+            border-radius: 2px;
+            text-decoration: line-through;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--bg-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast.success {
+            background: var(--success);
+        }
+        
+        .toast.warning {
+            background: var(--warning);
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 14px;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .api-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+        
+        .api-dot.loading {
+            background: var(--warning);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .template-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .template-item {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        
+        .template-item:hover {
+            border-color: var(--primary);
+            background: #fff8f8;
+        }
+        
+        .template-item .template-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .template-item .template-desc {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        
+        .char-count {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .char-count.warning {
+            color: var(--warning);
+        }
+        
+        .char-count.error {
+            color: var(--error);
+        }
+        
+        .highlight-text {
+            background: #ffebeb;
+            color: var(--error);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <div class="logo">
+            <div class="logo-icon">A</div>
+            <div class="logo-text">Ad<span>Pilot</span></div>
+        </div>
+        <div class="header-info">
+            <div class="header-stat">
+                <div class="header-stat-value" id="todayGenerated">0</div>
+                <div class="header-stat-label">今日生成</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-value" id="todaySent">0</div>
+                <div class="header-stat-label">今日发送</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-value">98.5%</div>
+                <div class="header-stat-label">采纳率</div>
+            </div>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">张</div>
+            <span>张销售</span>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">商家信息</div>
+                <div class="merchant-card">
+                    <div class="merchant-name" id="merchantName">杭州XX服饰有限公司</div>
+                    <div class="merchant-tags">
+                        <span class="tag tag-industry" id="merchantIndustry">服饰鞋包</span>
+                        <span class="tag tag-budget" id="merchantBudget">月均预算 ¥15,000</span>
+                        <span class="tag tag-stage" id="merchantStage">新客</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">店铺等级</span>
+                        <span class="info-value" id="shopLevel">Lv.3</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">主营类目</span>
+                        <span class="info-value" id="mainCategory">女装/连衣裙</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">最近投放</span>
+                        <span class="info-value" id="lastAd">7天前</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">平均ROI</span>
+                        <span class="info-value" id="avgRoi">2.3</span>
+                    </div>
+                </div>
+                <div class="api-status">
+                    <div class="api-dot" id="apiStatus"></div>
+                    <span id="apiStatusText">数据已加载</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">历史触达记录</div>
+                <div id="historyList">
+                    <div class="history-item" onclick="loadHistory(1)">
+                        <div class="history-date">2026-04-15 14:32</div>
+                        <div class="history-content">您好，了解到贵店近期投放效果有提升空间，我们这边有专业的优化方案...</div>
+                        <span class="history-status status-pending">待跟进</span>
+                    </div>
+                    <div class="history-item" onclick="loadHistory(2)">
+                        <div class="history-date">2026-04-10 09:15</div>
+                        <div class="history-content">感谢您的关注，关于千川投放的问题，我们可以安排专人对接...</div>
+                        <span class="history-status status-success">已回复</span>
+                    </div>
+                    <div class="history-item" onclick="loadHistory(3)">
+                        <div class="history-date">2026-04-05 16:48</div>
+                        <div class="history-content">您好，我是抖音电商的服务顾问，看到您的店铺数据表现不错...</div>
+                        <span class="history-status status-success">已回复</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div class="workspace">
+                <div class="panel panel-left">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-title-icon">1</div>
+                            意图槽位补齐
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="slot-section">
+                            <div class="slot-label">沟通目标<span class="required">*</span></div>
+                            <div class="slot-options" id="goalOptions">
+                                <div class="slot-option" data-value="首次破冰" onclick="selectSlot('goal', this)">
+                                    <span class="option-icon">📞</span>首次破冰
+                                </div>
+                                <div class="slot-option" data-value="挽回流失" onclick="selectSlot('goal', this)">
+                                    <span class="option-icon">🔄</span>挽回流失
+                                </div>
+                                <div class="slot-option" data-value="促复投" onclick="selectSlot('goal', this)">
+                                    <span class="option-icon">📈</span>促复投
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slot-section">
+                            <div class="slot-label">核心抗单点<span class="required">*</span></div>
+                            <div class="slot-options" id="painOptions">
+                                <div class="slot-option" data-value="嫌贵" onclick="selectSlot('pain', this)">
+                                    <span class="option-icon">💰</span>嫌贵
+                                </div>
+                                <div class="slot-option" data-value="怕没效果" onclick="selectSlot('pain', this)">
+                                    <span class="option-icon">❓</span>怕没效果
+                                </div>
+                                <div class="slot-option" data-value="怕操作复杂" onclick="selectSlot('pain', this)">
+                                    <span class="option-icon">🔧</span>怕操作复杂
+                                </div>
+                                <div class="slot-option" data-value="没时间" onclick="selectSlot('pain', this)">
+                                    <span class="option-icon">⏰</span>没时间
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="template-section">
+                            <div class="slot-label">快捷模板</div>
+                            <div class="template-grid">
+                                <div class="template-item" onclick="applyTemplate('budget')">
+                                    <div class="template-name">预算敏感型</div>
+                                    <div class="template-desc">强调成本可控</div>
+                                </div>
+                                <div class="template-item" onclick="applyTemplate('effect')">
+                                    <div class="template-name">效果顾虑型</div>
+                                    <div class="template-desc">强调数据透明</div>
+                                </div>
+                                <div class="template-item" onclick="applyTemplate('simple')">
+                                    <div class="template-name">简单易用型</div>
+                                    <div class="template-desc">强调操作便捷</div>
+                                </div>
+                                <div class="template-item" onclick="applyTemplate('follow')">
+                                    <div class="template-name">跟进回访型</div>
+                                    <div class="template-desc">强调服务支持</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="generate-btn" id="generateBtn" onclick="generateDraft()">
+                            <span>✨</span> 生成话术草稿
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="panel panel-right">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-title-icon">2</div>
+                            话术草稿编辑
+                        </div>
+                        <div class="draft-stats">
+                            <span class="draft-stat">字数: <strong id="charCount">0</strong>/150</span>
+                            <span class="draft-stat">耗时: <strong id="genTime">-</strong></span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="draft-container" id="draftContainer">
+                            <div class="empty-state" id="emptyState">
+                                <div class="empty-icon">📝</div>
+                                <div class="empty-text">请先选择沟通目标和抗单点，然后点击生成话术</div>
+                            </div>
+                            
+                            <div class="draft-editor" id="draftEditor" style="display: none;">
+                                <textarea class="draft-textarea" id="draftTextarea" placeholder="话术草稿将在这里显示，您可以进行编辑..." oninput="onDraftChange()"></textarea>
+                                <div class="sensitive-words" id="sensitiveWords" style="display: none;">
+                                    <div class="sensitive-title">
+                                        ⚠️ 检测到敏感词，建议替换
+                                    </div>
+                                    <div class="sensitive-list" id="sensitiveList"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="draft-toolbar" id="draftToolbar" style="display: none;">
+                                <div class="toolbar-left">
+                                    <button class="toolbar-btn" onclick="regenerate()">
+                                        <span>🔄</span> 重新生成
+                                    </button>
+                                    <button class="toolbar-btn" onclick="copyDraft()">
+                                        <span>📋</span> 复制
+                                    </button>
+                                    <button class="toolbar-btn" onclick="clearDraft()">
+                                        <span>🗑️</span> 清空
+                                    </button>
+                                </div>
+                                <button class="send-btn" id="sendBtn" onclick="sendDraft()">
+                                    <span>📤</span> 发送
+                                </button>
+                            </div>
+                            
+                            <div class="diff-panel" id="diffPanel" style="display: none;">
+                                <div class="diff-header">
+                                    <div class="diff-title">📊 Diff 对比分析</div>
+                                    <div class="diff-metrics">
+                                        <div class="diff-metric">编辑距离: <span class="value" id="editDistance">0</span></div>
+                                        <div class="diff-metric">修改率: <span class="value" id="editRatio">0%</span></div>
+                                    </div>
+                                </div>
+                                <div class="diff-content">
+                                    <div class="diff-box">
+                                        <div class="diff-box-title">原始草稿</div>
+                                        <div id="originalDraft"></div>
+                                    </div>
+                                    <div class="diff-box">
+                                        <div class="diff-box-title">最终发送</div>
+                                        <div id="finalDraft"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let selectedGoal = null;
+        let selectedPain = null;
+        let originalDraft = '';
+        let todayGenerated = 0;
+        let todaySent = 0;
+        
+        const sensitiveWordList = [
+            { word: '保证', replace: '助力' },
+            { word: '一定', replace: '有望' },
+            { word: '肯定', replace: '通常' },
+            { word: '稳赚', replace: '稳健' },
+            { word: '100%', replace: '较高' },
+            { word: '绝对', replace: '相对' },
+            { word: '最好', replace: '优质' },
+            { word: '第一', replace: '领先' },
+            { word: '最低价', replace: '优惠价' },
+            { word: '包赚', replace: '盈利空间' },
+        ];
+        
+        const merchantData = [
+            {
+                name: '杭州XX服饰有限公司',
+                industry: '服饰鞋包',
+                budget: '月均预算 ¥15,000',
+                stage: '新客',
+                level: 'Lv.3',
+                category: '女装/连衣裙',
+                lastAd: '7天前',
+                roi: '2.3'
+            },
+            {
+                name: '广州XX美妆旗舰店',
+                industry: '美妆护肤',
+                budget: '月均预算 ¥28,000',
+                stage: '活跃',
+                level: 'Lv.4',
+                category: '护肤/面膜',
+                lastAd: '3天前',
+                roi: '3.1'
+            },
+            {
+                name: '深圳XX数码专营店',
+                industry: '3C数码',
+                budget: '月均预算 ¥45,000',
+                stage: '高价值',
+                level: 'Lv.5',
+                category: '手机配件',
+                lastAd: '1天前',
+                roi: '2.8'
+            }
+        ];
+        
+        const templates = {
+            budget: { goal: '首次破冰', pain: '嫌贵' },
+            effect: { goal: '首次破冰', pain: '怕没效果' },
+            simple: { goal: '首次破冰', pain: '怕操作复杂' },
+            follow: { goal: '挽回流失', pain: '没时间' }
+        };
+        
+        const draftTemplates = {
+            '首次破冰_嫌贵': [
+                '您好，了解到贵店主营{industry}类目，近期投放数据有优化空间。我们这边有针对{budget}档位的专属方案，可以先小额试跑3-5天观察效果，成本可控。今天方便简单沟通下吗？',
+                '注意到贵店的{category}产品很有潜力，目前投放ROI还有提升空间。建议先从日均300-500元的小额测试开始，效果满意再逐步加量。您看这周有空聊聊吗？'
+            ],
+            '首次破冰_怕没效果': [
+                '您好，看到贵店在{industry}领域经营得不错。千川投放的数据是完全透明的，您可以实时看到每一分钱的消耗和转化效果。我们可以先做个小范围测试，用数据说话。方便今天沟通吗？',
+                '了解到您对投放效果有顾虑，这个很正常。我们支持先小额试投，后台数据实时可见，ROI达到预期再继续投入。要不我先发您一些同类目成功案例参考？'
+            ],
+            '首次破冰_怕操作复杂': [
+                '您好，千川投放其实很简单，我们有专业的运营团队全程协助，您只需要提供商品信息，剩下的优化工作交给我们。现在有很多{industry}商家都在用，效果不错。您看什么时候方便聊聊？',
+                '注意到贵店的{category}产品，投放操作我们这边可以全程托管，您只需要确认预算和目标就行，后台数据随时可查。今天有空简单了解下吗？'
+            ],
+            '首次破冰_没时间': [
+                '您好，了解到您平时比较忙。我们这边可以提供一对一的专属服务，投放优化、数据分析都有专人负责，您只需要定期看报表就行。方便留个联系方式，我发些资料给您参考？'
+            ],
+            '挽回流失_嫌贵': [
+                '您好，之前沟通了解到您对投放成本有顾虑。近期我们针对{industry}商家推出了新的优惠政策，同样的预算可以获得更多曝光。要不我再给您介绍下新方案？',
+                '好久不见，最近我们优化了{industry}类目的投放策略，同等预算下转化效率提升了30%左右。您看要不要重新试试，这次我给您申请个优惠？'
+            ],
+            '挽回流失_怕没效果': [
+                '您好，之前您对投放效果有疑虑。最近我们{industry}类目的整体ROI表现不错，平均能达到{roi}以上。要不我给您看几个近期的成功案例，您参考下？'
+            ],
+            '促复投_嫌贵': [
+                '您好，看到您之前投放效果不错。最近{industry}类目流量红利期，同样的预算现在能获得更好的效果。要不要趁这个机会再投一波？我给您申请个老客户优惠。'
+            ],
+            '促复投_怕没效果': [
+                '您好，您之前的投放ROI达到了{roi}，表现很稳定。最近平台对{industry}类目有扶持政策，转化效率更高了。要不要趁热打铁，再跑一波？'
+            ]
+        };
+        
+        function selectSlot(type, element) {
+            const container = element.parentElement;
+            container.querySelectorAll('.slot-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            if (type === 'goal') {
+                selectedGoal = element.dataset.value;
+            } else {
+                selectedPain = element.dataset.value;
+            }
+            
+            updateGenerateButton();
+        }
+        
+        function applyTemplate(type) {
+            const template = templates[type];
+            const goalOptions = document.getElementById('goalOptions');
+            const painOptions = document.getElementById('painOptions');
+            
+            goalOptions.querySelectorAll('.slot-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.value === template.goal);
+            });
+            painOptions.querySelectorAll('.slot-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.value === template.pain);
+            });
+            
+            selectedGoal = template.goal;
+            selectedPain = template.pain;
+            updateGenerateButton();
+        }
+        
+        function updateGenerateButton() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = !(selectedGoal && selectedPain);
+        }
+        
+        async function generateDraft() {
+            if (!selectedGoal || !selectedPain) {
+                showToast('请先选择沟通目标和抗单点', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtn');
+            btn.innerHTML = '<div class="spinner"></div> 生成中...';
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            document.getElementById('apiStatus').classList.add('loading');
+            document.getElementById('apiStatusText').textContent = '正在调用LLM...';
+
+            const startTime = Date.now();
+
+            // 获取商家信息
+            const merchant = merchantData[0];
+            const industry = merchant.industry;
+            const budget = merchant.budget;
+
+            // 显示编辑器
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('draftEditor').style.display = 'flex';
+            document.getElementById('draftToolbar').style.display = 'flex';
+            document.getElementById('draftTextarea').value = '';
+            originalDraft = '';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8081/api/v1/generate_draft', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        industry: industry,
+                        avg_budget: budget,
+                        goal: selectedGoal,
+                        pain_point: selectedPain
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API请求失败');
+                }
+
+                // 使用ReadableStream实现流式输出
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let generatedText = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    generatedText += chunk;
+
+                    // 实时更新文本框
+                    document.getElementById('draftTextarea').value = generatedText;
+                    onDraftChange();
+                }
+
+                originalDraft = generatedText;
+                checkSensitiveWords(generatedText);
+
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(1);
+                document.getElementById('genTime').textContent = duration + 's';
+
+                document.getElementById('apiStatus').classList.remove('loading');
+                document.getElementById('apiStatusText').textContent = '生成完成';
+
+                todayGenerated++;
+                document.getElementById('todayGenerated').textContent = todayGenerated;
+
+                showToast('话术草稿生成成功！', 'success');
+
+            } catch (error) {
+                console.error('生成失败:', error);
+                showToast('生成失败: ' + error.message, 'warning');
+
+                // 如果后端调用失败，使用本地模板作为降级方案
+                const key = `${selectedGoal}_${selectedPain}`;
+                const drafts = draftTemplates[key] || draftTemplates['首次破冰_嫌贵'];
+                let draft = drafts[Math.floor(Math.random() * drafts.length)];
+
+                draft = draft.replace('{industry}', merchant.industry)
+                            .replace('{budget}', merchant.budget)
+                            .replace('{category}', merchant.category)
+                            .replace('{roi}', merchant.roi);
+
+                originalDraft = draft;
+                document.getElementById('draftTextarea').value = draft;
+                onDraftChange();
+                checkSensitiveWords(draft);
+            }
+
+            btn.innerHTML = '<span>✨</span> 生成话术草稿';
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
+        
+        function regenerate() {
+            generateDraft();
+        }
+        
+        function onDraftChange() {
+            const textarea = document.getElementById('draftTextarea');
+            const text = textarea.value;
+            const charCount = text.length;
+            
+            const countEl = document.getElementById('charCount');
+            countEl.textContent = charCount;
+            
+            countEl.className = 'char-count';
+            if (charCount > 150) {
+                countEl.classList.add('error');
+            } else if (charCount > 120) {
+                countEl.classList.add('warning');
+            }
+            
+            checkSensitiveWords(text);
+        }
+        
+        function checkSensitiveWords(text) {
+            const found = [];
+            
+            sensitiveWordList.forEach(item => {
+                if (text.includes(item.word)) {
+                    found.push(item);
+                }
+            });
+            
+            const container = document.getElementById('sensitiveWords');
+            const list = document.getElementById('sensitiveList');
+            
+            if (found.length > 0) {
+                container.style.display = 'block';
+                list.innerHTML = found.map(item => 
+                    `<span class="sensitive-word" onclick="replaceWord('${item.word}', '${item.replace}')">
+                        ${item.word} → <span class="replace">${item.replace}</span>
+                    </span>`
+                ).join('');
+            } else {
+                container.style.display = 'none';
+            }
+        }
+        
+        function replaceWord(oldWord, newWord) {
+            const textarea = document.getElementById('draftTextarea');
+            textarea.value = textarea.value.replace(new RegExp(oldWord, 'g'), newWord);
+            onDraftChange();
+            showToast(`已将"${oldWord}"替换为"${newWord}"`, 'success');
+        }
+        
+        function copyDraft() {
+            const text = document.getElementById('draftTextarea').value;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制到剪贴板', 'success');
+            });
+        }
+        
+        function clearDraft() {
+            document.getElementById('draftTextarea').value = '';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('draftEditor').style.display = 'none';
+            document.getElementById('draftToolbar').style.display = 'none';
+            document.getElementById('diffPanel').style.display = 'none';
+            document.getElementById('sensitiveWords').style.display = 'none';
+            originalDraft = '';
+            onDraftChange();
+        }
+        
+        async function sendDraft() {
+            const finalText = document.getElementById('draftTextarea').value;
+
+            if (!finalText.trim()) {
+                showToast('请先生成或输入话术内容', 'warning');
+                return;
+            }
+
+            if (!originalDraft.trim()) {
+                showToast('请先生成话术草稿', 'warning');
+                return;
+            }
+
+            const sensitiveContainer = document.getElementById('sensitiveWords');
+            if (sensitiveContainer.style.display !== 'none') {
+                if (!confirm('检测到敏感词，是否确认发送？')) {
+                    return;
+                }
+            }
+
+            // 计算编辑距离和修改率
+            const distance = levenshteinDistance(originalDraft, finalText);
+            const maxLen = Math.max(originalDraft.length, finalText.length);
+            const editRatio = maxLen > 0 ? (distance / maxLen * 100).toFixed(1) : 0;
+
+            // 调用反馈接口
+            try {
+                const response = await fetch('http://127.0.0.1:8081/api/v1/submit_feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: 'web_' + Date.now(),
+                        draft_text: originalDraft,
+                        final_text: finalText
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(`已记录反馈，修改率为 ${result.edit_ratio * 100}%`, 'success');
+                } else {
+                    showToast('反馈提交失败', 'warning');
+                }
+            } catch (error) {
+                console.error('反馈提交失败:', error);
+                showToast('反馈提交失败: ' + error.message, 'warning');
+            }
+
+            showDiff(originalDraft, finalText);
+
+            todaySent++;
+            document.getElementById('todaySent').textContent = todaySent;
+
+            document.getElementById('sendBtn').disabled = true;
+            setTimeout(() => {
+                document.getElementById('sendBtn').disabled = false;
+            }, 2000);
+        }
+        
+        function showDiff(original, final) {
+            const panel = document.getElementById('diffPanel');
+            panel.style.display = 'block';
+            
+            const distance = levenshteinDistance(original, final);
+            const maxLen = Math.max(original.length, 1);
+            const ratio = (distance / maxLen * 100).toFixed(1);
+            
+            document.getElementById('editDistance').textContent = distance;
+            document.getElementById('editRatio').textContent = ratio + '%';
+            
+            document.getElementById('originalDraft').textContent = original;
+            document.getElementById('finalDraft').innerHTML = highlightDiff(original, final);
+        }
+        
+        function levenshteinDistance(str1, str2) {
+            const m = str1.length;
+            const n = str2.length;
+            const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+            
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+            
+            for (let i = 1; i <= m; i++) {
+                for (let j = 1; j <= n; j++) {
+                    if (str1[i - 1] === str2[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1];
+                    } else {
+                        dp[i][j] = Math.min(
+                            dp[i - 1][j] + 1,
+                            dp[i][j - 1] + 1,
+                            dp[i - 1][j - 1] + 1
+                        );
+                    }
+                }
+            }
+            
+            return dp[m][n];
+        }
+        
+        function highlightDiff(original, final) {
+            let result = '';
+            let i = 0, j = 0;
+            
+            while (i < original.length || j < final.length) {
+                if (i < original.length && j < final.length && original[i] === final[j]) {
+                    result += final[j];
+                    i++;
+                    j++;
+                } else if (j < final.length && (i >= original.length || original[i] !== final[j])) {
+                    result += `<span class="diff-added">${final[j]}</span>`;
+                    j++;
+                } else if (i < original.length) {
+                    result += `<span class="diff-removed">${original[i]}</span>`;
+                    i++;
+                }
+            }
+            
+            return result;
+        }
+        
+        function loadHistory(id) {
+            const merchant = merchantData[id % merchantData.length];
+            
+            document.getElementById('merchantName').textContent = merchant.name;
+            document.getElementById('merchantIndustry').textContent = merchant.industry;
+            document.getElementById('merchantBudget').textContent = merchant.budget;
+            document.getElementById('merchantStage').textContent = merchant.stage;
+            document.getElementById('shopLevel').textContent = merchant.level;
+            document.getElementById('mainCategory').textContent = merchant.category;
+            document.getElementById('lastAd').textContent = merchant.lastAd;
+            document.getElementById('avgRoi').textContent = merchant.roi;
+            
+            document.getElementById('apiStatus').classList.add('loading');
+            document.getElementById('apiStatusText').textContent = '加载中...';
+            
+            setTimeout(() => {
+                document.getElementById('apiStatus').classList.remove('loading');
+                document.getElementById('apiStatusText').textContent = '数据已加载';
+                showToast('已加载商家信息', 'success');
+            }, 500);
+        }
+        
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateGenerateButton();
+        });
+    </script>
+</body>
+</html>

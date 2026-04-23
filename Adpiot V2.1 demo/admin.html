@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdPilot - 数据飞轮管理看板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #00c4ff;
+            --secondary: #0070f3;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4d4f;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #f5f6f8;
+            --card-bg: #2a2a4a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #888888;
+            --border: #3a3a5a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .app-header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .logo-text span {
+            color: var(--primary);
+        }
+        
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main-container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .metrics-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .metric-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 196, 255, 0.2);
+        }
+        
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .metric-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .metric-change {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .logs-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .refresh-btn {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-1px);
+        }
+        
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .logs-table th {
+            background: rgba(0, 196, 255, 0.1);
+            padding: 16px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logs-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        
+        .logs-table tr:hover {
+            background: rgba(0, 196, 255, 0.05);
+        }
+        
+        .tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .tag-golden {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+        
+        .tag-gray {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+        }
+        
+        .tag-bad {
+            background: rgba(255, 77, 79, 0.2);
+            color: var(--danger);
+        }
+        
+        .text-truncate {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-width: 400px;
+            z-index: 1000;
+            border: 1px solid var(--border);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 16px;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            
+            .metrics-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .logs-table {
+                font-size: 12px;
+            }
+            
+            .logs-table th,
+            .logs-table td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <div class="logo">
+            <div class="logo-icon">A</div>
+            <div class="logo-text">Ad<span>Pilot</span></div>
+        </div>
+        <div class="header-info">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>系统运行中</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="metrics-section">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">总生成次数</div>
+                    <div class="metric-icon" style="background: rgba(0, 196, 255, 0.2); color: var(--primary);">📊</div>
+                </div>
+                <div class="metric-value" id="totalGenerations">0</div>
+                <div class="metric-change">今日新增: <span id="todayGenerations">0</span></div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">总采纳数 (Golden Case)</div>
+                    <div class="metric-icon" style="background: rgba(0, 255, 136, 0.2); color: var(--success);">✅</div>
+                </div>
+                <div class="metric-value" id="totalGoldenCases">0</div>
+                <div class="metric-change">采纳率: <span id="adoptionRate">0%</span></div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">自动打标率</div>
+                    <div class="metric-icon" style="background: rgba(255, 170, 0, 0.2); color: var(--warning);">🏷️</div>
+                </div>
+                <div class="metric-value" id="autoTagRate">100%</div>
+                <div class="metric-change">系统自动处理</div>
+            </div>
+        </div>
+        
+        <div class="logs-section">
+            <div class="section-header">
+                <h2 class="section-title">飞轮资产库</h2>
+                <button class="refresh-btn" onclick="fetchLogs()">
+                    🔄 刷新数据
+                </button>
+            </div>
+            
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+            </div>
+            
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">📋</div>
+                <div class="empty-text">暂无日志数据</div>
+            </div>
+            
+            <table id="logsTable" class="logs-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>会话ID</th>
+                        <th>修改率</th>
+                        <th>标签</th>
+                        <th>AI 原始话术</th>
+                        <th>最终发送话术</th>
+                    </tr>
+                </thead>
+                <tbody id="logsBody"></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载时获取数据
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchLogs();
+        });
+        
+        async function fetchLogs() {
+            const loading = document.getElementById('loading');
+            const emptyState = document.getElementById('emptyState');
+            const logsTable = document.getElementById('logsTable');
+            const logsBody = document.getElementById('logsBody');
+            
+            // 显示加载状态
+            loading.style.display = 'flex';
+            emptyState.style.display = 'none';
+            logsTable.style.display = 'none';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8081/api/v1/logs');
+                const logs = await response.json();
+                
+                // 处理数据
+                processLogs(logs);
+                
+                // 更新 UI
+                if (logs.length === 0) {
+                    loading.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    loading.style.display = 'none';
+                    logsTable.style.display = 'table';
+                    renderLogs(logs);
+                }
+            } catch (error) {
+                console.error('获取日志失败:', error);
+                loading.style.display = 'none';
+                emptyState.style.display = 'block';
+                document.querySelector('.empty-text').textContent = '获取数据失败，请检查服务状态';
+            }
+        }
+        
+        function processLogs(logs) {
+            // 计算指标
+            const totalGenerations = logs.length;
+            const goldenCases = logs.filter(log => log.tag === 'Golden Case').length;
+            const adoptionRate = totalGenerations > 0 ? Math.round((goldenCases / totalGenerations) * 100) : 0;
+            
+            // 计算今日新增
+            const today = new Date().toISOString().split('T')[0];
+            const todayGenerations = logs.filter(log => log.timestamp.startsWith(today)).length;
+            
+            // 更新指标卡片
+            document.getElementById('totalGenerations').textContent = totalGenerations;
+            document.getElementById('todayGenerations').textContent = todayGenerations;
+            document.getElementById('totalGoldenCases').textContent = goldenCases;
+            document.getElementById('adoptionRate').textContent = adoptionRate + '%';
+        }
+        
+        function renderLogs(logs) {
+            const logsBody = document.getElementById('logsBody');
+            logsBody.innerHTML = '';
+            
+            // 按时间倒序排序
+            logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            logs.forEach(log => {
+                const row = document.createElement('tr');
+                
+                // 格式化时间
+                const date = new Date(log.timestamp);
+                const formattedTime = date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                // 确定标签样式
+                let tagClass = 'tag';
+                if (log.tag === 'Golden Case') {
+                    tagClass += ' tag-golden';
+                } else if (log.tag === 'Gray Case') {
+                    tagClass += ' tag-gray';
+                } else if (log.tag === 'Bad Case') {
+                    tagClass += ' tag-bad';
+                }
+                
+                row.innerHTML = `
+                    <td>${formattedTime}</td>
+                    <td>${log.session_id.substring(0, 12)}...</td>
+                    <td>${(log.edit_ratio * 100).toFixed(0)}%</td>
+                    <td><span class="${tagClass}">${log.tag}</span></td>
+                    <td class="tooltip" data-tooltip="${log.draft_text}">
+                        <div class="text-truncate">${log.draft_text}</div>
+                    </td>
+                    <td class="tooltip" data-tooltip="${log.final_text}">
+                        <div class="text-truncate">${log.final_text}</div>
+                    </td>
+                `;
+                
+                logsBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
